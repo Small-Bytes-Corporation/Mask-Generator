@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw
 import numpy as np
 from numpy.ma.core import floor
 from pathlib import Path
-
+from math import sqrt
 
 def is_white(pixel):
     return pixel[0] > 150 and pixel[1] > 150 and pixel[2] > 150
@@ -35,6 +35,7 @@ class RayCast:
 
 
     def run(self):
+        distance_array = []
         half_fov = self.fov / 2
         angle_step = self.fov / (self.ray_nb - 1)
         center_x = self.width // 2
@@ -42,5 +43,9 @@ class RayCast:
         for i in range(self.ray_nb):
             ray_angle = -half_fov + i * angle_step - 90
             intersection = self.cast_ray(np.deg2rad(ray_angle))
+            dist_x = intersection[0] - center_x
+            dist_y = intersection[1] - center_y
+            distance_array.append(sqrt(dist_x * dist_x + dist_y * dist_y))
             self.canvas.line([center_x, center_y, intersection[0], intersection[1]], fill="blue", width=1)
-        self.image.save("RayCastOutput/" + self.name.stem + self.name.suffix)
+        self.image.save("RayCastOutput/" + self.name.stem + "-" + str(self.fov) + "-" + str(self.ray_nb) + self.name.suffix)
+        return distance_array
