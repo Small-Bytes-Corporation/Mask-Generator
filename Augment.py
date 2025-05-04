@@ -8,12 +8,14 @@ from PIL import Image, ImageOps, ImageEnhance
 import shutil
 from tqdm import tqdm
 
-# Configuration
+# Paths and directories
 input_dir = "InputLines"               # Original input images
 mask_dir = "OutputLines"               # Corresponding mask images
 aug_input_dir = "AugmentedInputLines"  # Output for augmented inputs
 aug_mask_dir = "AugmentedOutputLines"  # Output for augmented masks
-num_augmentations = 20                 # Number of variations per image
+
+# Configuration
+num_augmentations = 20  # Number of variations per image
 num_workers = max(1, multiprocessing.cpu_count() - 1)
 
 # Clear/create output directories
