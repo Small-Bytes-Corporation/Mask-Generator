@@ -6,7 +6,7 @@ import os
 
 fov = 90
 ray_nb = 10
-input_dir = "OutputLines"
+input_dir = "OutputLines/"
 
 if __name__ == '__main__':
     for filename in os.listdir(input_dir):

@@ -5,12 +5,11 @@ from pathlib import Path
 from math import sqrt
 
 def is_white(pixel):
-    return pixel[0] + pixel[1] + pixel[2] > 100
-
+    return int(pixel[0]) + int(pixel[1]) + int(pixel[2]) > 100
 
 class RayCast:
     def __init__(self, image_path, fov, ray_nb):
-        self.image = Image.open(image_path)
+        self.image = Image.open(image_path).convert("RGB")
         self.name = Path(image_path)
         width, height = self.image.size
         self.width = width
@@ -19,6 +18,7 @@ class RayCast:
         self.ray_nb = ray_nb
         self.pixels = np.array(self.image)
         self.canvas = ImageDraw.Draw(self.image)
+        os.makedirs("RayCastOutput", exist_ok=True)
 
     def cast_ray(self, angle):
         dx = np.cos(angle)
