@@ -5,7 +5,7 @@ from pathlib import Path
 from math import sqrt
 
 def is_white(pixel):
-    return pixel[0] > 150 and pixel[1] > 150 and pixel[2] > 150
+    return pixel[0] + pixel[1] + pixel[2] > 100
 
 
 class RayCast:

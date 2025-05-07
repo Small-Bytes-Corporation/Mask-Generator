@@ -4,10 +4,12 @@ from RayCast import RayCast
 from sys import argv
 import os
 
+fov = 90
+ray_nb = 10
+input_dir = "OutputLines"
+
 if __name__ == '__main__':
-    fov = 90
-    ray_nb = 10
-    for filename in os.listdir("MaskOutput/"):
-        caster = RayCast("MaskOutput/" + filename, fov, ray_nb)
+    for filename in os.listdir(input_dir):
+        caster = RayCast(input_dir + filename, fov, ray_nb)
         print(caster.run())
     exit(0)
