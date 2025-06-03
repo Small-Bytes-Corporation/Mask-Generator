@@ -12,7 +12,6 @@ class RayCast:
     def __init__(self, image_path, fov, ray_nb):
         image_binary = Image.open(image_path).convert('1').convert('L')
         self.image = image_binary.convert("RGB")
-        self.image = Image.open(image_path).convert("RGB")
         self.name = Path(image_path)
         width, height = self.image.size
         self.width = width
