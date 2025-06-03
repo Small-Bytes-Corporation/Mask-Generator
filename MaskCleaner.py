@@ -12,9 +12,9 @@ from PIL import Image, ImageDraw
 from tqdm import tqdm
 
 # Paths and directories
-input_dir = "OutputNoLines/"    # Input mask directory
-output_dir = "OutputCleaned/"   # Cleaned masks output
-debug_dir = "OutputDebug/"      # Debug visualizations
+input_dir = "MaskNoLines/"      # Input mask directory
+output_dir = "MaskCleaned/"     # Cleaned masks output
+debug_dir = "MaskDebug/"        # Debug visualizations
 bg_debug_dir = "InputNoLines/"  # Optional background for debug
 
 # Configuration

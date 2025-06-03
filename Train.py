@@ -26,7 +26,7 @@ num_workers = 0
 
 # Directories
 image_dir = 'AugmentedInputLines'
-mask_dir = 'AugmentedOutputLines'
+mask_dir = 'AugmentedMaskLines'
 best_model_path = 'best.pth'
 metrics_csv_path = 'metrics.csv'
 
@@ -60,8 +60,8 @@ class TrackLimitDataset(Dataset):
         mask_path = self.mask_dir / img_name
 
         try:
-            image = Image.open(img_path).convert("RGB")
-            mask = Image.open(mask_path).convert("L")  # Load as grayscale
+            image = Image.open(img_path).convert("RGB") # Load as RGB image
+            mask = Image.open(mask_path).convert("L")   # Load as grayscale
 
             if self.image_transform:
                 image = self.image_transform(image)
@@ -110,14 +110,10 @@ class Down(nn.Module):
 
 class Up(nn.Module):
     """Upsampling block with skip connections from encoder to decoder"""
-    def __init__(self, in_channels, out_channels, bilinear=True):
+    def __init__(self, in_channels, out_channels):
         super().__init__()
-        if bilinear:
-            self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
-            self.conv = DoubleConv(in_channels, out_channels, in_channels // 2)
-        else:
-            self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
-            self.conv = DoubleConv(in_channels, out_channels)
+        self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.conv = DoubleConv(in_channels, out_channels, in_channels // 2)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
@@ -141,25 +137,23 @@ class OutConv(nn.Module):
 
 class SimpleUNet(nn.Module):
     """U-Net architecture for semantic segmentation"""
-    def __init__(self, n_channels=3, n_classes=1, bilinear=True):
+    def __init__(self, n_channels=3, n_classes=1):
         super().__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
-        self.bilinear = bilinear
-        factor = 2 if bilinear else 1
 
         # Encoder path
         self.inc = DoubleConv(n_channels, 64)
         self.down1 = Down(64, 128)
         self.down2 = Down(128, 256)
         self.down3 = Down(256, 512)
-        self.down4 = Down(512, 1024 // factor)
+        self.down4 = Down(512, 1024 // 2)
 
         # Decoder path with skip connections
-        self.up1 = Up(1024, 512 // factor, bilinear)
-        self.up2 = Up(512, 256 // factor, bilinear)
-        self.up3 = Up(256, 128 // factor, bilinear)
-        self.up4 = Up(128, 64, bilinear)
+        self.up1 = Up(1024, 512 // 2)
+        self.up2 = Up(512, 256 // 2)
+        self.up3 = Up(256, 128 // 2)
+        self.up4 = Up(128, 64)
 
         # Output layer
         self.outc = OutConv(64, n_classes)
@@ -331,11 +325,11 @@ def train_one_epoch(model, loader, optimizer, criterion, device, epoch, metrics_
 
             with open(metrics_file, 'a') as f:
                 if not file_exists or metrics_file.stat().st_size == 0:
-                    f.write("epoch,step,train_loss,train_acc,train_iou,train_dice,lr\n")
+                    f.write("epoch,step,train_loss,train_acc,train_iou,train_dice\n")
 
                 f.write(f"{epoch},{batch_idx+1},{avg_metrics['loss']:.6f},"
                         f"{avg_metrics['acc']:.6f},{avg_metrics['iou']:.6f},"
-                        f"{avg_metrics['dice']:.6f},{current_lr:.8f}\n")
+                        f"{avg_metrics['dice']:.6f}\n")
 
             running_metrics = {k: 0.0 for k in running_metrics}
             batch_count = 0
@@ -475,7 +469,6 @@ def train_model(metrics_csv):
     # Define loss, optimizer and scheduler
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=5)
 
     best_val_iou = -1.0
     start_time = time.time()
@@ -498,9 +491,6 @@ def train_model(metrics_csv):
         val_metrics = evaluate(model, val_loader, criterion, device, phase="val")
         print(f"Val: Loss={val_metrics['loss']:.4f}, Acc={val_metrics['acc']:.4f}, "
               f"IoU={val_metrics['iou']:.4f}, Dice={val_metrics['dice']:.4f}")
-
-        # Adjust learning rate based on performance
-        scheduler.step(val_metrics['iou'])
 
         # Save best model based on IoU score
         if val_metrics['iou'] > best_val_iou:

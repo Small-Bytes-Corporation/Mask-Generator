@@ -3,12 +3,15 @@ import numpy as np
 from numpy.ma.core import floor
 from pathlib import Path
 from math import sqrt
+import os
 
 def is_white(pixel):
-    return int(pixel[0]) + int(pixel[1]) + int(pixel[2]) > 100
+    return int(pixel) == 255
 
 class RayCast:
     def __init__(self, image_path, fov, ray_nb):
+        image_binary = Image.open(image_path).convert('1').convert('L')
+        self.image = image_binary.convert("RGB")
         self.image = Image.open(image_path).convert("RGB")
         self.name = Path(image_path)
         width, height = self.image.size
@@ -16,9 +19,9 @@ class RayCast:
         self.height = height
         self.fov = fov
         self.ray_nb = ray_nb
-        self.pixels = np.array(self.image)
+        self.pixels = np.array(image_binary)
         self.canvas = ImageDraw.Draw(self.image)
-        os.makedirs("RayCastOutput", exist_ok=True)
+        os.makedirs("MaskRayCast", exist_ok=True)
 
     def cast_ray(self, angle):
         dx = np.cos(angle)
@@ -33,7 +36,6 @@ class RayCast:
             y += dy
         return x, y
 
-
     def run(self):
         distance_array = []
         half_fov = self.fov / 2
@@ -47,5 +49,5 @@ class RayCast:
             dist_y = intersection[1] - center_y
             distance_array.append(sqrt(dist_x * dist_x + dist_y * dist_y))
             self.canvas.line([center_x, center_y, intersection[0], intersection[1]], fill="blue", width=1)
-        self.image.save("RayCastOutput/" + self.name.stem + "-" + str(self.fov) + "-" + str(self.ray_nb) + self.name.suffix)
+        self.image.save("MaskRayCast/" + self.name.stem + "-" + str(self.fov) + "-" + str(self.ray_nb) + self.name.suffix)
         return distance_array

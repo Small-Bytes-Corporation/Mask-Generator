@@ -10,9 +10,9 @@ from tqdm import tqdm
 
 # Paths and directories
 input_dir = "InputLines"               # Original input images
-mask_dir = "OutputLines"               # Corresponding mask images
+mask_dir = "MaskLines"                 # Corresponding mask images
 aug_input_dir = "AugmentedInputLines"  # Output for augmented inputs
-aug_mask_dir = "AugmentedOutputLines"  # Output for augmented masks
+aug_mask_dir = "AugmentedMaskLines"    # Output for augmented masks
 
 # Configuration
 num_augmentations = 20  # Number of variations per image
@@ -83,7 +83,7 @@ def process_image(img_path):
        return False
 
    try:
-       img = Image.open(img_path)
+       img = Image.open(img_path).convert('RGB') # Ensure image is RGB
        mask = Image.open(mask_path).convert('L') # Ensure mask is grayscale
 
        # Generate multiple augmented versions
