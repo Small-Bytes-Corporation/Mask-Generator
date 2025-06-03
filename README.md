@@ -4,7 +4,7 @@ This repository contains Python scripts for image augmentation, mask cleaning, r
 
 ## Directory Structure
 
-- `images.zip`: Contains all input and mask images. Must be unzipped first.
+- `Images/`: Contains all input and mask images. Must be unzipped first.
 - `Models/`: Pretrained models ready for inference.
 - `InputLines/`: Original simulation input images.
 - `MaskLines/`: Original simulation mask images.
@@ -19,11 +19,10 @@ This repository contains Python scripts for image augmentation, mask cleaning, r
 - `MaskCleaned/`: Cleaned masks (output from `MaskCleaner.py`).
 - `MaskDebug/`: Debug visualizations from `MaskCleaner.py`.
 - `MaskRayCast/`: Images with ray casts from `RayMain.py`.
-- `MetricsLines/`: Images with ray casts from `RayMain.py`.
-- `MetricsNoLines/`: Images with ray casts from `RayMain.py`.
+- `MetricsLines/`: Metrics plots from `Metrics.py`.
+- `MetricsNoLines/`: Metrics plots from `Metrics.py`.
 - `best.pth`: Default path for the saved best trained model.
 - `metrics.csv`: CSV file to log training metrics.
-- `metrics_plots/`: Metrics plots from `Metrics.py`.
 
 ## Scripts
 
@@ -99,6 +98,20 @@ Usage:
 python Metrics.py
 ```
 - Outputs images will be drawn to `metrics_plots/`.
+
+#### `MetricsLines/` plots
+
+| Loss Plot | Combined Metrics Plot |
+|-----------|-----------------------|
+| ![Training Loss](MetricsLines/loss_plot.png) | ![Training Metrics](MetricsLines/metrics_plot.png) |
+
+#### `MetricsNoLines/` plots
+
+| Loss Plot | Combined Metrics Plot |
+|-----------|-----------------------|
+| ![Training Loss](MetricsNoLines/loss_plot.png) | ![Training Metrics](MetricsNoLines/metrics_plot.png) |
+
+These plots show the training performance comparison between models trained on original simulation data (with visible track lines) versus raw simulation data. The loss plots track training convergence, while the metrics plots show the combined performance of Accuracy, IoU, and Dice coefficients over training steps.
 
 ## Dependencies
 
